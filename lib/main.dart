@@ -12,6 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          color: Colors.pink[100],
+        ),
+      ),
       home: ChangeNotifierProvider(
         create: (context) => TarefaProvider(),
         child: const TarefasApp(),
@@ -58,7 +63,15 @@ class _AdicionarTarefaFormState extends State<AdicionarTarefaForm> {
           Expanded(
             child: TextField(
               controller: _controller,
-              decoration: const InputDecoration(labelText: 'Nova Tarefa'),
+              decoration: const InputDecoration(
+                labelText: 'Nova Tarefa',
+                labelStyle:
+                    TextStyle(color: Colors.pink), // Cor do texto do rótulo
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Colors.pink), // Cor da borda quando em foco
+                ),
+              ),
             ),
           ),
           IconButton(
@@ -90,33 +103,39 @@ class ListaDeTarefas extends StatelessWidget {
         itemCount: tarefaProvider.tarefas.length,
         itemBuilder: (context, index) {
           final tarefa = tarefaProvider.tarefas[index];
-          return ListTile(
-            title: Text(tarefa.titulo),
-            subtitle: tarefa.concluida ? const Text('Concluída') : null,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Checkbox(
-                  value: tarefa.concluida,
-                  onChanged: (value) {
-                    if (value != null && value) {
-                      Provider.of<TarefaProvider>(context, listen: false)
-                          .marcarComoConcluida(tarefa.id);
-                    } else {
-                      Provider.of<TarefaProvider>(context, listen: false)
-                          .desmarcarComoConcluida(tarefa.id);
-                    }
-                  },
+          return Column(
+            children: [
+              ListTile(
+                leading: Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.grey[400],
+                  ),
+                  child: Checkbox(
+                    value: tarefa.concluida,
+                    onChanged: (value) {
+                      if (value != null && value) {
+                        Provider.of<TarefaProvider>(context, listen: false)
+                            .marcarComoConcluida(tarefa.id);
+                      } else {
+                        Provider.of<TarefaProvider>(context, listen: false)
+                            .desmarcarComoConcluida(tarefa.id);
+                      }
+                    },
+                    activeColor: Colors.pink,
+                  ),
                 ),
-                IconButton(
+                title: Text(tarefa.titulo),
+                subtitle: tarefa.concluida ? const Text('Concluída') : null,
+                trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     Provider.of<TarefaProvider>(context, listen: false)
                         .removerTarefa(tarefa.id);
                   },
                 ),
-              ],
-            ),
+              ),
+              const Divider(), // Adiciona um Divider entre os itens
+            ],
           );
         },
       ),
