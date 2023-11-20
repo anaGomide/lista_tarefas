@@ -17,15 +17,26 @@ void main() {
     await tester.tap(find.byType(IconButton));
     await tester.pump();
 
-    // Verificar se a tarefa foi adicionada.
-    expect(find.text('Nova Tarefa'), findsOneWidget);
+// Verificar se a tarefa foi adicionada.
+    expect(
+        find.byWidgetPredicate((Widget widget) =>
+            widget is ListTile &&
+            widget.title is Text &&
+            (widget.title as Text).data == 'Nova Tarefa'),
+        findsOneWidget);
 
-    // Remover a tarefa adicionada.
+// Remover a tarefa adicionada.
     await tester.tap(find.byIcon(Icons.delete));
-    await tester.pump();
+    await tester
+        .pumpAndSettle(); // Aguarde a interface do usuário ser atualizada.
 
-    // Verificar se a tarefa foi removida.
-    expect(find.text('Nova Tarefa'), findsNothing);
+// Verificar se a tarefa foi removida.
+    expect(
+        find.byWidgetPredicate((Widget widget) =>
+            widget is ListTile &&
+            widget.title is Text &&
+            (widget.title as Text).data == 'Nova Tarefa'),
+        findsNothing);
 
     // Adicionar uma nova tarefa.
     await tester.enterText(find.byType(TextField), 'Outra Tarefa');

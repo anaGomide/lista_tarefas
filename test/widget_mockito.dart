@@ -58,8 +58,8 @@ void main() {
       // Adicione expectativas para os métodos chamados dentro do itemBuilder
       when(mockProvider.marcarComoConcluida(argThat(isNotNull)))
           .thenReturn((_) {});
-      when(mockProvider.desmarcarComoConcluida(any)).thenReturn(null);
-      when(mockProvider.removerTarefa(any)).thenReturn(null);
+      // when(mockProvider.desmarcarComoConcluida(any)).thenReturn(null);
+      // when(mockProvider.removerTarefa(any)).thenReturn(null);
 
       // Ação
       await tester.pumpWidget(
