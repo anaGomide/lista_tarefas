@@ -3,14 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lista_tarefas/main.dart';
 import 'package:lista_tarefas/model/tarefa.dart';
 import 'package:lista_tarefas/provider/tarefa_provider.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-class MockTarefaProvider extends Mock implements TarefaProvider {
-  @override
-  List<Tarefa> get tarefas => [];
-}
+import 'widget_mockito_test.mocks.dart';
 
+@GenerateMocks([TarefaProvider])
 void main() {
   group('Testes de Widgets do TarefasApp', () {
     testWidgets('AdicionarTarefaFormState adiciona tarefa corretamente',
@@ -57,7 +56,8 @@ void main() {
       ]);
 
       // Adicione expectativas para os métodos chamados dentro do itemBuilder
-      when(mockProvider.marcarComoConcluida(anything)).thenReturn();
+      when(mockProvider.marcarComoConcluida(argThat(isNotNull)))
+          .thenReturn((_) {});
       when(mockProvider.desmarcarComoConcluida(any)).thenReturn(null);
       when(mockProvider.removerTarefa(any)).thenReturn(null);
 
