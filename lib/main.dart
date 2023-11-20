@@ -34,7 +34,7 @@ class TarefasApp extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Lista de Tarefas'),
       ),
-      body: Column(
+      body: const Column(
         children: [
           AdicionarTarefaForm(),
           ListaDeTarefas(),
