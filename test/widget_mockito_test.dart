@@ -26,7 +26,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider(
             create: (context) => mockProvider,
-            child: TarefasApp(),
+            child: const TarefasApp(),
           ),
         ),
       );
@@ -42,8 +42,9 @@ void main() {
 
       // Assertiva
       verify(mockProvider.adicionarTarefa('Nova Tarefa')).called(1);
-      verify(mockProvider.tarefas).called(
-          2); // Verificar se tarefas foi chamado após adicionar uma tarefa
+      verify(mockProvider.tarefas).called(2);
+
+      // Verificar se tarefas foi chamado após adicionar uma tarefa
     });
 
     testWidgets('ListaDeTarefas exibe as tarefas corretamente',
@@ -66,7 +67,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider(
             create: (context) => mockProvider,
-            child: TarefasApp(),
+            child: const TarefasApp(),
           ),
         ),
       );
