@@ -12,6 +12,7 @@ class TarefaProvider extends ChangeNotifier {
   }
 
   void removerTarefa(int id) {
+    print("Removendo tarefa $id");
     _tarefas.removeWhere((tarefa) => tarefa.id == id);
     notifyListeners();
   }

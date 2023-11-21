@@ -62,6 +62,7 @@ class _AdicionarTarefaFormState extends State<AdicionarTarefaForm> {
         children: [
           Expanded(
             child: TextField(
+              key: const Key('text_field'),
               controller: _controller,
               decoration: const InputDecoration(
                 labelText: 'Nova Tarefa',
@@ -75,6 +76,7 @@ class _AdicionarTarefaFormState extends State<AdicionarTarefaForm> {
             ),
           ),
           IconButton(
+            key: const Key('add_button'),
             icon: const Icon(Icons.add),
             onPressed: () {
               final String novaTarefa = _controller.text;
@@ -127,6 +129,7 @@ class ListaDeTarefas extends StatelessWidget {
                 title: Text(tarefa.titulo),
                 subtitle: tarefa.concluida ? const Text('Concluída') : null,
                 trailing: IconButton(
+                  key: const Key('delete_button'),
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     Provider.of<TarefaProvider>(context, listen: false)
