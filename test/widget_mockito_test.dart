@@ -12,72 +12,182 @@ import 'widget_mockito_test.mocks.dart';
 @GenerateMocks([TarefaProvider])
 void main() {
   group('Testes de Widgets do TarefasApp', () {
-    testWidgets('AdicionarTarefaFormState adiciona tarefa corretamente',
-        (WidgetTester tester) async {
+    testWidgets('Exibir corretamente as tarefas', (WidgetTester tester) async {
       // Preparação
-      final mockProvider = MockTarefaProvider();
-      when(mockProvider.tarefas).thenReturn([]);
-
-      // Adicione a expectativa para adicionarTarefa
-      when(mockProvider.adicionarTarefa('Nova Tarefa')).thenReturn(null);
-
-      // Ação
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ChangeNotifierProvider(
-            create: (context) => mockProvider,
-            child: const TarefasApp(),
-          ),
-        ),
-      );
-
-      // Inserir uma tarefa no campo de texto
-      await tester.enterText(find.byType(TextField), 'Nova Tarefa');
-
-      // Toque no botão de adicionar
-      await tester.tap(find.byType(IconButton));
-
-      // Reconstruir o widget após o estado ter mudado
-      await tester.pump();
-
-      // Assertiva
-      verify(mockProvider.adicionarTarefa('Nova Tarefa')).called(1);
-      verify(mockProvider.tarefas).called(2);
-
-      // Verificar se tarefas foi chamado após adicionar uma tarefa
-    });
-
-    testWidgets('ListaDeTarefas exibe as tarefas corretamente',
-        (WidgetTester tester) async {
-      // Preparação
-      final mockProvider = MockTarefaProvider();
-      when(mockProvider.tarefas).thenReturn([
-        Tarefa(id: 1, titulo: 'Tarefa 1', concluida: false),
+      MockTarefaProvider tarefaProvider = MockTarefaProvider();
+      when(tarefaProvider.tarefas).thenReturn([
+        Tarefa(id: 1, titulo: "Tarefa 1", concluida: false),
         Tarefa(id: 2, titulo: 'Tarefa 2', concluida: true),
       ]);
 
-      // Adicione expectativas para os métodos chamados dentro do itemBuilder
-      when(mockProvider.marcarComoConcluida(argThat(isNotNull)))
-          .thenReturn((_) {});
-      // when(mockProvider.desmarcarComoConcluida(any)).thenReturn(null);
-      // when(mockProvider.removerTarefa(any)).thenReturn(null);
-
-      // Ação
-      await tester.pumpWidget(
-        MaterialApp(
+      Widget app = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TarefaProvider>(
+              create: (context) => tarefaProvider)
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
           home: ChangeNotifierProvider(
-            create: (context) => mockProvider,
+            create: (context) => tarefaProvider,
             child: const TarefasApp(),
           ),
         ),
       );
 
-      // Assertiva
-      expect(find.text('Tarefa 1'), findsOneWidget);
-      expect(find.text('Tarefa 2'), findsOneWidget);
-      expect(find.byIcon(Icons.check), findsOneWidget);
-      expect(find.byIcon(Icons.delete), findsNWidgets(2));
-      verify(mockProvider.tarefas).called(1);
+      await tester.pumpWidget(app);
+      expect(find.text("Tarefa 1"), findsOneWidget);
+      expect(find.text("Tarefa 2"), findsOneWidget);
+    });
+
+    testWidgets('Adicionar tarefa', (WidgetTester tester) async {
+      // Mock the TarefaProvider
+      final tarefaProvider = MockTarefaProvider();
+      when(tarefaProvider.tarefas).thenReturn([]);
+
+      // Provide the mock TarefaProvider to the widget tree
+      Widget app = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TarefaProvider>(
+            create: (context) => tarefaProvider,
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const TarefasApp(),
+        ),
+      );
+
+      // Pump the widget tree
+      await tester.pumpWidget(app);
+
+      // Simulate user input
+      await tester.enterText(
+          find.byKey(const Key('text_field')), 'Nova Tarefa');
+
+      // Trigger the button press
+      await tester.tap(find.byKey(const Key('add_button')));
+
+      // Verify that the adicionarTarefa method is called
+      verify(tarefaProvider.adicionarTarefa('Nova Tarefa')).called(1);
+
+      expect(find.text("Nova Tarefa"), findsOneWidget);
+    });
+    testWidgets('Marcar tarefa como concluída', (WidgetTester tester) async {
+      // Mock the TarefaProvider
+      final tarefaProvider = MockTarefaProvider();
+      when(tarefaProvider.tarefas)
+          .thenReturn([Tarefa(id: 1, titulo: 'Tarefa 1', concluida: false)]);
+      when(tarefaProvider.marcarComoConcluida(any)).thenAnswer((_) => true);
+
+      // Provide the mock TarefaProvider to the widget tree
+      Widget app = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TarefaProvider>(
+            create: (context) => tarefaProvider,
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const TarefasApp(),
+        ),
+      );
+
+      // Pump the widget tree
+      await tester.pumpWidget(app);
+
+      // Pump any pending frames and ensure the widget tree is in a stable state
+      await tester.pumpAndSettle();
+
+      // Simulate user input
+      await tester.tap(find.byType(Checkbox).first);
+
+      // Verify that the marcarComoConcluida method is called
+      verify(tarefaProvider.marcarComoConcluida(1)).called(1);
+    });
+
+    testWidgets('Desmarcar tarefa como concluída', (WidgetTester tester) async {
+      // Mock the TarefaProvider
+      final tarefaProvider = MockTarefaProvider();
+      when(tarefaProvider.tarefas)
+          .thenReturn([Tarefa(id: 1, titulo: 'Tarefa 1', concluida: true)]);
+      when(tarefaProvider.desmarcarComoConcluida(any)).thenAnswer((_) => false);
+
+      // Provide the mock TarefaProvider to the widget tree
+      Widget app = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TarefaProvider>(
+            create: (context) => tarefaProvider,
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const TarefasApp(),
+        ),
+      );
+
+      // Pump the widget tree
+      await tester.pumpWidget(app);
+
+      // Pump any pending frames and ensure the widget tree is in a stable state
+      await tester.pumpAndSettle();
+
+      // Simulate user input
+      await tester.tap(find.byType(Checkbox).first);
+
+      // Verify that the desmarcarComoConcluida method is called
+      verify(tarefaProvider.desmarcarComoConcluida(1)).called(1);
+    });
+    testWidgets('Remover tarefa', (WidgetTester tester) async {
+      // Mock the TarefaProvider
+      final tarefaProvider = MockTarefaProvider();
+      when(tarefaProvider.tarefas)
+          .thenReturn([Tarefa(id: 1, titulo: 'Tarefa 1', concluida: false)]);
+      when(tarefaProvider.removerTarefa(any)).thenAnswer((_) => true);
+
+      // Provide the mock TarefaProvider to the widget tree
+      Widget app = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TarefaProvider>(
+            create: (context) => tarefaProvider,
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const TarefasApp(),
+        ),
+      );
+
+      // Pump the widget tree
+      await tester.pumpWidget(app);
+
+      // Pump any pending frames and ensure the widget tree is in a stable state
+      await tester.pumpAndSettle();
+
+      // Simulate user input
+      await tester.tap(find.byIcon(Icons.delete).first);
+
+      // Verify that the removerTarefa method is called
+      verify(tarefaProvider.removerTarefa(1)).called(1);
     });
   });
 }
